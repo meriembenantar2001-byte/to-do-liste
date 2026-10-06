@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kawaii To-Do List</title>
+    <!-- Importing Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importing Google Fonts for cute typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Mali:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --pink-light: #ffd6e0;
+            --pink-dark: #ff9a9e;
+            --pink-border: #ffb3c6;
+            --pink-line: #ffe5ec;
+        }
+
+        body {
+            /* Gingham background pattern */
+            background-color: white;
+            background-image: 
+                linear-gradient(90deg, rgba(255, 182, 193, 0.25) 50%, transparent 50%),
+                linear-gradient(rgba(255, 182, 193, 0.25) 50%, transparent 50%);
+            background-size: 50px 50px;
+            font-family: 'Mali', cursive;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .title-text {
+            font-family: 'Fredoka', sans-serif;
+            color: #ff85a2;
+            /* Creating the thick white outline effect */
+            text-shadow: 
+                -3px -3px 0 #fff, 
+                3px -3px 0 #fff, 
+                -3px 3px 0 #fff, 
+                3px 3px 0 #fff,
+                0px 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .paper-container {
+            background-color: #fff;
+            /* Organic, slightly wavy/hand-drawn border radius */
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            border: 6px solid var(--pink-border);
+            box-shadow: 0 15px 35px rgba(255, 133, 162, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ruled lines for the tasks */
+        .task-item {
+            border-bottom: 2px solid var(--pink-line);
+            transition: all 0.3s ease;
+        }
+
+        .task-item:last-child {
+            border-bottom: 2px solid var(--pink-line);
+        }
+
+        /* Heart checkbox animations */
+        .heart-icon {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .heart-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .task-text {
+            transition: all 0.3s ease;
+        }
+
+        .completed .task-text {
+            text-decoration: line-through;
+            color: #a0aec0;
+        }
+
+        .completed .heart-filled {
+            display: block;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .completed .heart-empty {
+            display: none;
+        }
+
+        .uncompleted .heart-filled {
+            display: none;
+        }
+
+        .uncompleted .heart-empty {
+            display: block;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        /* Custom scrollbar for cuteness */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff0f3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb3c6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff85a2;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="mb-8 flex items-center justify-center gap-4 text-center mt-6">
+        <h1 class="title-text text-5xl md:text-6xl font-semibold tracking-wider flex items-center gap-3">
+            <span class="text-4xl md:text-5xl" style="text-shadow: none; filter: drop-shadow(2px 2px 0px #fff);">🎀</span>
+            To do List:
+        </h1>
+    </header>
+
+    <!-- Main Paper Container -->
+    <main class="paper-container w-full max-w-lg p-6 sm:p-8 flex flex-col h-[65vh]">
+        
+        <!-- Add Task Input Area -->
+        <div class="flex gap-2 mb-6">
+            <input type="text" id="task-input" placeholder="أضف مهمة جديدة لطيفة..." 
+                class="flex-1 bg-pink-50 border-2 border-pink-200 rounded-2xl px-4 py-3 outline-none focus:border-pink-400 focus:bg-white transition-colors text-gray-700 placeholder-pink-300 text-lg shadow-sm"
+                onkeypress="handleKeyPress(event)"
+            >
+            <button onclick="addTask()" 
+                class="bg-pink-400 hover:bg-pink-500 text-white rounded-2xl px-6 py-3 font-semibold text-lg transition-all transform hover:scale-105 active:scale-95 shadow-md flex items-center justify-center">
+                إضافة 🌸
+            </button>
+        </div>
+
+        <!-- Task List Area -->
+        <div class="flex-1 overflow-y-auto pr-2">
+            <ul id="task-list" class="flex flex-col">
+                <!-- Initial placeholder tasks -->
+                <li class="task-item uncompleted py-3 px-2 flex items-center gap-4 animate-slide-down">
+                    <div class="heart-icon text-pink-400 w-8 h-8 flex-shrink-0 flex items-center justify-center" onclick="toggleTask(this)">
+                        <svg class="heart-empty w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path></svg>
+                        <svg class="heart-filled w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path></svg>
+                    </div>
+                    <span class="task-text text-gray-700 text-xl font-medium flex-1">شرب كوب من الماء 💧</span>
+                    <button onclick="deleteTask(this)" class="text-pink-200 hover:text-pink-500 font-bold text-xl px-2 opacity-50 hover:opacity-100 transition-opacity">×</button>
+                </li>
+                
+                <li class="task-item uncompleted py-3 px-2 flex items-center gap-4 animate-slide-down" style="animation-delay: 0.1s">
+                    <div class="heart-icon text-pink-400 w-8 h-8 flex-shrink-0 flex items-center justify-center" onclick="toggleTask(this)">
+                        <svg class="heart-empty w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312-2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path></svg>
+                        <svg class="heart-filled w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path></svg>
+                    </div>
+                    <span class="task-text text-gray-700 text-xl font-medium flex-1">قراءة 10 صفحات من كتاب 📖</span>
+                    <button onclick="deleteTask(this)" class="text-pink-200 hover:text-pink-500 font-bold text-xl px-2 opacity-50 hover:opacity-100 transition-opacity">×</button>
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        // SVG Templates for the hearts
+        const heartEmptySVG = `<svg class="heart-empty w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path></svg>`;
+        const heartFilledSVG = `<svg class="heart-filled w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"></path></svg>`;
+
+        // Add a new task to the list
+        function addTask() {
+            const inputField = document.getElementById('task-input');
+            const taskText = inputField.value.trim();
+
+            if (taskText === '') {
+                // Flash the input slightly if empty (No alerts allowed)
+                inputField.classList.add('bg-pink-100');
+                setTimeout(() => inputField.classList.remove('bg-pink-100'), 300);
+                return;
+            }
+
+            const taskList = document.getElementById('task-list');
+            
+            // Create new list item
+            const li = document.createElement('li');
+            li.className = 'task-item uncompleted py-3 px-2 flex items-center gap-4 animate-slide-down';
+            
+            li.innerHTML = `
+                <div class="heart-icon text-pink-400 w-8 h-8 flex-shrink-0 flex items-center justify-center" onclick="toggleTask(this)">
+                    ${heartEmptySVG}
+                    ${heartFilledSVG}
+                </div>
+                <span class="task-text text-gray-700 text-xl font-medium flex-1">${taskText}</span>
+                <button onclick="deleteTask(this)" class="text-pink-200 hover:text-pink-500 font-bold text-xl px-2 opacity-50 hover:opacity-100 transition-opacity">×</button>
+            `;
+
+            taskList.appendChild(li);
+            
+            // Clear input and scroll to bottom
+            inputField.value = '';
+            taskList.parentElement.scrollTop = taskList.parentElement.scrollHeight;
+        }
+
+        // Toggle task completion status
+        function toggleTask(heartElement) {
+            const listItem = heartElement.closest('.task-item');
+            
+            if (listItem.classList.contains('uncompleted')) {
+                listItem.classList.remove('uncompleted');
+                listItem.classList.add('completed');
+            } else {
+                listItem.classList.remove('completed');
+                listItem.classList.add('uncompleted');
+            }
+        }
+
+        // Delete a task with a smooth fade out
+        function deleteTask(btnElement) {
+            const listItem = btnElement.closest('.task-item');
+            listItem.style.opacity = '0';
+            listItem.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                listItem.remove();
+            }, 300); // Wait for transition
+        }
+
+        // Allow pressing 'Enter' to add task
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        }
+    </script>
+</body>
+</html>
